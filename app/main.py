@@ -13,7 +13,7 @@ import fitz
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+
 from pydantic import BaseModel, Field
 
 from docx import Document
@@ -40,13 +40,22 @@ app = FastAPI(
 
 # Permitir la comunicación con Angular en el puerto 4203.
 # No añadir aquí enlaces Markdown: deben ser URL literales.
+# Orígenes permitidos en desarrollo local.
+allowed_origins = [
+    "http://localhost:4203",
+    "http://127.0.0.1:4203",
+]
+
+# URL del frontend desplegado en Render.
+frontend_url = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
+
+if frontend_url:
+    allowed_origins.append(frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:4203",
-        "http://127.0.0.1:4203",
-    ],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
